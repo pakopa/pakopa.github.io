@@ -1,0 +1,20 @@
+html {
+	height: 100%;
+	margin: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+body {
+	height: 100%;
+	margin: 0;
+	border: 0;
+	box-sizing: border-box;
+	background-color: #F0F0F0;
+	color: #DDD;
+}
+
+.apology {
+	font-family: 'Helvetica', 'Arial', sans-serif;
+	font-size: 78pt;
+}
