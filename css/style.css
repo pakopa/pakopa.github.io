@@ -11,10 +11,12 @@ body {
 	border: 0;
 	box-sizing: border-box;
 	background-color: #F0F0F0;
-	color: #DDD;
+	color: #333;
+	padding: 8px;
 }
 
 .apology {
 	font-family: 'Helvetica', 'Arial', sans-serif;
 	font-size: 78pt;
+	text-align: center;
 }
