@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Munchkin Tools</title>
+    <link rel="stylesheet" type="text/css" href="munchkin-tools.css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+
+</head>
+
+<body ng-controller="MainCtrl as main">
+
+    <div class="main">
+
+        <!-- DICE -->
+        <div class="dice-container" ng-controller="DiceCtrl as dice">
+            <div class="dice-value value-{{dice.rolling ? '0' : dice.value}}">{{dice.value}}</div>
+            <div class="roll-container">
+                <button ng-click="dice.rollStop()">{{dice.rolling ? 'Stop!': 'Roll!'}}</button>
+            </div>
+        </div>
+
+        <!-- PLAYERS -->
+        <div class="players-container" ng-controller="PlayersCtrl as playersCtrl">
+            <div class="header"></div>
+            <div class="player-list">
+                <div ng-repeat="player in playersCtrl.playerList" class="player">
+                    <span class="player-name">{{player.name}}</span>
+                    <span class="player-level">{{player.level}}</span>
+                    <button ng-click="player.levelUp()">+</button>
+                    <button ng-click="player.levelDown()">-</button>
+                </div>
+            </div>
+            <div class="new-player">
+                <input type="text" name="name" placeholder="New player name" ng-model="tmpName" />
+                <button ng-click="playersCtrl.addPlayer(tmpName); tmpName = null" ng-disabled="!tmpName">Add</button>
+            </div>
+        </div>
+        <!-- /PLAYERS -->
+    </div>
+
+    <script type="text/javascript" src="munchkin-tools.js"></script>
+</body>
+
+</html>

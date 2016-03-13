@@ -1,0 +1,75 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    ;
+    margin: 0;
+    background-color: beige;
+    font-family: 'Helvetica', 'Arial', 'sans-serif';
+}
+
+.main {
+    width: 900px;
+    min-height: 600px;
+    display: flex;
+    flex-direction: row;
+    margin: 32px auto 16px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+    background-color: white;
+}
+
+.dice-container {
+    flex: auto 1 1;
+    padding: 16px
+}
+
+.dice-value {
+    transition: all 0.4s ease-out;
+    font-size: 200px;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.dice-value.value-0 {
+    color: hsla(0, 0%, 50%, 0.8);
+}
+
+.dice-value.value-1 {
+    color: hsla(0, 100%, 50%, 0.9);
+}
+
+.dice-value.value-2 {
+    color: hsla(24, 100%, 50%, 0.9);
+}
+
+.dice-value.value-3 {
+    color: hsla(48, 100%, 50%, 0.9);
+}
+
+.dice-value.value-4 {
+    color: hsla(72, 100%, 50%, 0.9);
+}
+
+.dice-value.value-5 {
+    color: hsla(96, 100%, 50%, 0.9);
+}
+
+.dice-value.value-6 {
+    color: hsla(120, 100%, 50%, 0.9);
+}
+
+.players-container {
+    flex: auto 1 1;
+    padding: 16px
+}
+
+@media (max-width: 960px) {
+    .main {
+        width: 100%;
+        margin: 0;
+    }
+}
