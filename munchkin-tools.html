@@ -14,10 +14,12 @@
 
         <!-- DICE -->
         <div class="dice-container" ng-controller="DiceCtrl as dice">
-            <div class="dice-value value-{{dice.rolling ? '0' : dice.value}}">{{dice.value}}</div>
-            <div class="roll-container">
-                <button ng-click="dice.rollStop()">{{dice.rolling ? 'Stop!': 'Roll!'}}</button>
+            <div class="dice-value value-{{dice.rolling ? '0' : dice.value}}">
+                <a href="#" ng-click="dice.rollStop()" title="{{dice.rolling ? 'Stop!': 'Roll!'}}">{{dice.value}}</a>
             </div>
+            <!-- <div class="roll-container">
+                <button ng-click="dice.rollStop()">{{dice.rolling ? 'Stop!': 'Roll!'}}</button>
+            </div> -->
         </div>
 
         <!-- PLAYERS -->

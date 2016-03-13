@@ -34,6 +34,11 @@ body {
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
 }
 
+.dice-container a, .dice-container a:hover, dice-container a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+
 .dice-value.value-0 {
     color: hsla(0, 0%, 50%, 0.8);
 }
