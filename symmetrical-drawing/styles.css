@@ -41,7 +41,7 @@ div.canvas-container {
 }
 
 canvas {
-	cursor: pen;
+	cursor: crosshair;
 }
 
 input[type=number] {
