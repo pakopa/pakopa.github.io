@@ -12,17 +12,22 @@
 				<option value="black">Black</option>
 				<option value="red">Red</option>
 				<option value="blue">Blue</option>
+				<option value="green">Green</option>
+				<option value="white">White</option>
+
 			</select>
 		</div>
-		<!--
 		<div>
 			<label>Stroke</label>
-			<input type="number" name="stroke" value="1"></input>
+			<input type="number" name="stroke" value="2"></input>
 		</div>
-		-->
 		<div>
 			<label>Size</label>
 			<input type="number" name="size" value="600"></input>
+		</div>
+		<div>
+			<input type="checkbox" name="rulers" checked="checked"></input>
+			<label for="rulers">Rulers</label>
 		</div>
 		<div>
 			<label>Symmetry</label>
@@ -33,7 +38,8 @@
 		</div>
 	</div>
 	<div class="canvas-container">
-		<canvas></canvas>
+		<canvas id="main"></canvas>
+		<canvas class="rulers"></canvas>
 	</div>
 	<script type="text/javascript" src="script.js"></script>
 </body>

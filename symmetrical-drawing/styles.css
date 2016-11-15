@@ -11,13 +11,17 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+	background-color: #222;
 }
 
 div.tools-container {
     flex: initial;
-	margin: 16px 16px 0;
 	display: flex;
+	margin: 16px 16px 0;
+	padding: 4px;
 	flex-direction: row;
+	background-color: #FFF;
+	align-self: center;
 }
 
 div.tools-container > div + div {
@@ -32,16 +36,30 @@ input[name=symmetry], input[name=stroke] {
 	width: 40px;
 }
 
+input[type=checkbox] {
+	border: 1px solid #222;
+}
+
 div.canvas-container {
+	position: relative;
 	align-self: center;
     width: 600px;
     height: 600px;
     box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.2);
     margin: 16px;
+	background-color: white;
 }
 
 canvas {
 	cursor: crosshair;
+}
+
+canvas.rulers {
+	position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 input[type=number] {
