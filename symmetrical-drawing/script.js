@@ -44,7 +44,7 @@
         ctx.strokeStyle = document.querySelector('select[name=color-select]').value || 'black';
         ctx.fillStyle = document.querySelector('select[name=color-select]').value || 'black';
 
-        var diameter = parseint(document.querySelector('input[name=stroke]').value || 1);
+        var diameter = parseInt(document.querySelector('input[name=stroke]').value || 1);
         ctx.lineWidth = diameter;
 
         ctx.translate(cx, cy);
