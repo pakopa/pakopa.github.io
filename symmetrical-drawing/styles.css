@@ -1,21 +1,21 @@
 html, body {
-    height: 100%;
-    width: 100%;
-    box-sizing: border-box;
-    border: 0;
-    margin: 0;
-    position: relative;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	border: 0;
+	margin: 0;
+	position: relative;
 	font-family: sans-serif;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 	background-color: #222;
 }
 
 div.tools-container {
-    flex: 0 0 auto;
+	flex: 0 0 auto;
 	display: flex;
 	margin: 16px 16px 0;
 	padding: 4px;
@@ -41,12 +41,13 @@ input[type=checkbox] {
 }
 
 div.canvas-container {
+	flex: 1 0 auto;
 	position: relative;
 	align-self: center;
-    width: 600px;
-    height: 600px;
-    box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.2);
-    margin: 16px;
+	width: 600px;
+	height: 600px;
+	box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.2);
+	margin: 16px;
 	background-color: white;
 }
 
@@ -56,8 +57,8 @@ canvas {
 
 canvas.rulers {
 	position: absolute;
-    top: 0;
-    left: 0;
+	top: 0;
+	left: 0;
 }
 
 input[type=number] {
