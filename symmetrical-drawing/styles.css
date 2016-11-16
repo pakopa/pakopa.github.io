@@ -15,7 +15,7 @@ body {
 }
 
 div.tools-container {
-    flex: initial;
+    flex: 0 0 auto;
 	display: flex;
 	margin: 16px 16px 0;
 	padding: 4px;
@@ -58,8 +58,6 @@ canvas.rulers {
 	position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
 }
 
 input[type=number] {
