@@ -41,7 +41,7 @@ input[type=checkbox] {
 }
 
 div.canvas-container {
-	flex: 1 0 auto;
+	flex: 0 0 auto;
 	position: relative;
 	align-self: center;
 	width: 600px;
