@@ -11,7 +11,7 @@ html, body {
 body {
 	display: flex;
 	flex-direction: column;
-	background-color: #222;
+	background-color: #FFF;
 }
 
 div.tools-container {
@@ -21,6 +21,7 @@ div.tools-container {
 	padding: 4px;
 	flex-direction: row;
 	background-color: #FFF;
+	box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.2);
 	align-self: center;
 }
 
