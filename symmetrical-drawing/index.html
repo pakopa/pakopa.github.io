@@ -14,7 +14,6 @@
 				<option value="blue">Blue</option>
 				<option value="green">Green</option>
 				<option value="white">White</option>
-
 			</select>
 		</div>
 		<div>
@@ -26,8 +25,8 @@
 			<input type="number" name="size" value="600"></input>
 		</div>
 		<div>
-			<input type="checkbox" name="rulers" checked="checked"></input>
-			<label for="rulers">Rulers</label>
+			<input id="rulersCheckbox" type="checkbox" name="rulers" checked="checked"></input>
+			<label for="rulersCheckbox">Rulers</label>
 		</div>
 		<div>
 			<label>Symmetry</label>
@@ -36,10 +35,14 @@
 		<div>
 			<button name="reset">Reset</button>
 		</div>
+		<div>
+			<button name="download">Download</button>
+		</div>
 	</div>
 	<div class="canvas-container">
 		<canvas id="main"></canvas>
 		<canvas class="rulers"></canvas>
+		<div id="actions"></div>
 	</div>
 	<script type="text/javascript" src="script.js"></script>
 </body>
