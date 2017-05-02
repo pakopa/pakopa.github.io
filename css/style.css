@@ -1,25 +1,43 @@
 html {
-	height: 100%;
-	margin: 0;
-	border: 0;
-	box-sizing: border-box;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
 }
 
 body {
-	height: 100%;
-	margin: 0;
-	border: 0;
-	box-sizing: border-box;
-	background-color: #F0F0F0;
-	color: #333;
-	padding: 8px;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+    background-color: #F0F0F0;
+    color: #333;
+    padding: 8px;
+}
+
+header {
+    margin: 2em auto 2em;
+}
+
+header>span {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 16pt;
+    text-align: center;
+    display: inline-block;
+    width: 100%;
 }
 
 .apology {
-	font-family: 'Helvetica', 'Arial', sans-serif;
-	font-size: 78pt;
-	text-align: center;
-	margin: 80px auto;
-	display: inline-block;
-	width: 100%;
+    font-size: 52pt;
+}
+
+a {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 16pt;
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
 }

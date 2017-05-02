@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+	<title>svg2png</title>
+	<meta name="description" content="Convert file from svg to png" />
+	<meta charset="UTF-8" />
+	<meta name="language" content="English">
+	<meta name="keywords" content="png, svg, converter" />
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+	<link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="./svg2png.css" />
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>
+</head>
+
+<body>
+	<header>
+		<span>SVG2PNG - Import image and copy / download the result</span>
+	</header>
+	<section class="controls">
+		<div>
+			<label for=" input">URL or FILE</label>
+			<input type="url" size="60" id="input" placeholder="image URL" focus="true" />
+		</div>
+		<div>
+			<label for="inputFile">Select File</label>
+			<input type="file" id="inputFile" />
+		</div>
+		<div>
+			<label>Scale (%)</label>
+			<input type="number" size="5" id="zoom" value="100" />
+		</div>
+		<div>
+			<button id="refresh">Reload</button>
+		</div>
+	</section>
+	<section class="content">
+		<canvas id="content" width="320" height="320">	      
+	    </canvas>
+		<div>
+			<span id="size">? x ? px</span>
+		</div>
+	</section>
+	<script type="text/javascript" src="./svg2png.js"></script>
+</body>
