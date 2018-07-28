@@ -16,10 +16,11 @@ body {
     color: #444;
 }
 
+
 div.tools-container {
     flex: 0 0 auto;
     display: flex;
-    margin: 16px 16px 0;
+    margin: 0;
     padding: 4px;
     flex-direction: row;
     flex-wrap: wrap;
@@ -28,6 +29,7 @@ div.tools-container {
     align-self: center;
     align-items: stretch;
 }
+
 
 .control {
     display: inline-block;
@@ -49,10 +51,12 @@ input[type=number] {
     width: 70px;
 }
 
-button {
+button, .button {
     text-transform: uppercase;
+    text-decoration: none;
     font-weight: bolder;
     background: #FFF;
+    color: inherit;
     cursor: pointer;   
     padding: 0.2em 0.6em;
 }
@@ -87,14 +91,14 @@ canvas {
     cursor: crosshair;
 }
 
-canvas.rulers {
+canvas.grid {
     position: absolute;
     top: 0;
     left: 0;
 }
 
 /* Control styles */
-.control input, .control button, .control select, .control .checkbox-control {
+.control input, .control button, .control .button, .control select, .control .checkbox-control {
     display: inline-block;
     box-sizing: border-box;
     margin-top: 0.7em;
@@ -115,7 +119,7 @@ canvas.rulers {
     border: 0;    
 }
 
-.control button {
+.control button, .control .button {
     padding: 0.2em 0.6em;
 }
 

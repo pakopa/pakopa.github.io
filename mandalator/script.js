@@ -30,16 +30,14 @@
 	}, false );
 
 	// Setup control events
-	$( '[name=reset]' ).addEventListener( 'click', reset, false );
+	$( '[data-action=reset]' ).addEventListener( 'click', reset, false );
 
-	$( '[name=download]' ).addEventListener( 'click', function () {
-		window.open( canvas.toDataURL(), '_blank' );
-		console.debug( 'download', evt );
-	}, false );
+	$( '[data-action=download]' ).addEventListener( 'click', handleDownload, false );
 
-	$( '[name=rulers]' ).addEventListener( 'change', function () {
-		rulers.style.visibility = this.checked ? 'visible' : 'hidden';
-		console.debug( 'change rulers visibility to', rulers.style.visibility );
+	var grid = $( 'canvas.grid' )
+	$( '[name=grid]' ).addEventListener( 'change', function () {
+		grid.style.visibility = this.checked ? 'visible' : 'hidden';
+		console.debug( 'change grid visibility to', grid.style.visibility );
 	}, false );
 
 	$( '[name=color-advanced]' ).addEventListener( 'change', setColor, false );
@@ -48,15 +46,37 @@
 
 	// Prepare de drawing context
 	var canvas = $( 'canvas#main' );
-	var rulers = $( 'canvas.rulers' )
 	var ctx = canvas.getContext( '2d' );
 	var cx, cy, splits;
 	var previous = null;
 	var strokeColor = '#000';
 	var fillColor = '#000';
+	var backgroundColors = {
+		'': 'Current',
+		'rgba(0, 0, 0, 0)': 'Transparent',
+		'#FFF': 'White',
+		'#EEE': 'Not so white',
+		'#222': 'Not so black',
+		'#000': 'Black'
+	};
+
+	// Calculate inital size
+	var minSize = Math.floor( Math.min( window.innerHeight - canvas.getBoundingClientRect().y, window.innerWidth ) - 16 );
+	$( 'input[name=size]' ).value = minSize;
+
+	// Initialize background select
+	var backgroundSelect = $( '[name=background-color]' );
+	Object.keys( backgroundColors ).forEach( function ( key ) {
+		var option = document.createElement( 'option' );
+		option.value = key;
+		option.textContent = backgroundColors[key];
+		backgroundSelect.appendChild( option );
+	} );
+
+	// Default background color
+	backgroundSelect.value = '#FFF';
 
 	// Initialize the canvas
-	canvas.allowTouch
 	reset();
 	ctx.strokeStyle = strokeColor;
 
@@ -99,7 +119,6 @@
 
 		ctx.save()
 
-
 		ctx.strokeStyle = strokeColor;
 		ctx.fillStyle = fillColor;
 
@@ -128,7 +147,7 @@
 	// Resets canvas to inital state
 	function reset() {
 
-
+		// Size and symmetry
 		var size = $( 'input[name=size]' ).value || 600;
 		splits = parseInt( $( 'input[name=symmetry]' ).value || 8 );
 
@@ -140,44 +159,49 @@
 
 		var bounds = parentNode.getBoundingClientRect();
 
-		canvas.width = rulers.width = bounds.width;
-		canvas.height = rulers.height = bounds.height;
+		canvas.width = grid.width = bounds.width;
+		canvas.height = grid.height = bounds.height;
 
 		cx = canvas.width / 2;
 		cy = canvas.height / 2;
 
+		// Background
 		ctx.clearRect( 0, 0, canvas.width, canvas.height );
 
-		var rulersCtx = rulers.getContext( '2d' );
-		rulersCtx.save();
-		rulersCtx.fillStyle = 'rgba(0, 0, 0, 0)';
-		rulersCtx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-		rulersCtx.clearRect( 0, 0, canvas.width, canvas.height );
+		ctx.fillStyle = $( '[name=background-color]' ).value || $( '[name=color-advanced]' ).value
+		ctx.fillRect( 0, 0, canvas.width, canvas.height );
 
-		rulersCtx.save();
-		rulersCtx.translate( cx, cy );
+		// Grid
+		var gridCtx = grid.getContext( '2d' );
+		gridCtx.save();
+		gridCtx.fillStyle = 'rgba(0, 0, 0, 0)';
+		gridCtx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+		gridCtx.clearRect( 0, 0, canvas.width, canvas.height );
+
+		gridCtx.save();
+		gridCtx.translate( cx, cy );
 
 		for ( var i = 0; i < splits; i++ ) {
 
-			rulersCtx.beginPath();
+			gridCtx.beginPath();
 
-			rulersCtx.moveTo( 0, -50 );
-			rulersCtx.lineTo( 0, -Math.floor( 1.5 * canvas.height / 2 ) );
-			rulersCtx.stroke();
+			gridCtx.moveTo( 0, -50 );
+			gridCtx.lineTo( 0, -Math.floor( 1.5 * canvas.height / 2 ) );
+			gridCtx.stroke();
 
-			//rulersCtx.arc(x1 - cx, y1 - cy, diameter / 2, 0, 2 * Math.PI);
-			//rulersCtx.fill();
+			//gridCtx.arc(x1 - cx, y1 - cy, diameter / 2, 0, 2 * Math.PI);
+			//gridCtx.fill();
 
-			rulersCtx.rotate( 2 * Math.PI / splits );
+			gridCtx.rotate( 2 * Math.PI / splits );
 		}
 
 		for ( var i = 1; i < Math.floor( canvas.width / 50 ); i++ ) {
-			rulersCtx.beginPath();
-			rulersCtx.arc( 0, 0, i * 50, 0, 2 * Math.PI );
-			rulersCtx.stroke();
+			gridCtx.beginPath();
+			gridCtx.arc( 0, 0, i * 50, 0, 2 * Math.PI );
+			gridCtx.stroke();
 		}
 
-		rulersCtx.restore();
+		gridCtx.restore();
 
 		console.debug( 'Canvas reset' );
 
@@ -191,6 +215,23 @@
 		$( '[name=color-advanced]' ).value = color;
 
 		console.debug( 'set colors to', strokeColor, fillColor );
+	}
+
+	function handleDownload( evt ) {
+
+		console.debug( 'download' );
+
+		canvas.toBlob( function ( blob ) {
+			
+			var url = URL.createObjectURL( blob );
+			var image = window.open( url, '_blank' );
+			console.debug( 'opened image in new window', url );
+		
+			image.addEventListener( 'beforeunload', function () {
+				URL.revokeObjectURL( url );
+				console.debug( 'Revoked url', url );
+			}, false )
+		} )
 	}
 
 } )( window, document )
