@@ -1,51 +1,109 @@
-( function( window, document, undefined ) {
+( function ( window, document, undefined ) {
 	'use sctrict';
 
-	// Preparamos el canvas
-	var actions = document.querySelector( '#actions' );
-	var canvas = document.querySelector( 'canvas#main' );
-	var rulers = document.querySelector( 'canvas.rulers' )
+	// A little helper function
+	function $( selector ) {
+		return document.querySelector( selector );
+	}
+
+	// Setup drawing events
+	var actions = $( '#actions' );
+	actions.addEventListener( 'touchstart', handleStart, false );
+	actions.addEventListener( 'mousedown', handleStart, false );
+	actions.addEventListener( 'touchmove', function ( evt ) {
+
+		if ( evt.touches.length == 1 ) {
+			evt.preventDefault();
+			handleMove( evt.touches[0] );
+		} else {
+			console.debug( 'Ignored touch event', evt );
+			return true;
+		}
+	}, false );
+	actions.addEventListener( 'mousemove', function ( evt ) {
+
+		// Check for mousedown status
+		if ( evt.buttons & 1 == 1 ) {
+			evt.preventDefault();
+			handleMove( evt );
+		}
+	}, false );
+
+	// Setup control events
+	$( '[name=reset]' ).addEventListener( 'click', reset, false );
+
+	$( '[name=download]' ).addEventListener( 'click', function () {
+		window.open( canvas.toDataURL(), '_blank' );
+		console.debug( 'download', evt );
+	}, false );
+
+	$( '[name=rulers]' ).addEventListener( 'change', function () {
+		rulers.style.visibility = this.checked ? 'visible' : 'hidden';
+		console.debug( 'change rulers visibility to', rulers.style.visibility );
+	}, false );
+
+	$( '[name=color-advanced]' ).addEventListener( 'change', setColor, false );
+	$( '[name=color]' ).addEventListener( 'change', setColor, false );
+
+
+	// Prepare de drawing context
+	var canvas = $( 'canvas#main' );
+	var rulers = $( 'canvas.rulers' )
 	var ctx = canvas.getContext( '2d' );
 	var cx, cy, splits;
-	var capture = false;
-	var previous = {};
+	var previous = null;
+	var strokeColor = '#000';
+	var fillColor = '#000';
 
+	// Initialize the canvas
+	canvas.allowTouch
 	reset();
+	ctx.strokeStyle = strokeColor;
 
-	ctx.strokeStyle = 'black';
+	// Helper function to get mouse position on canvas.
+	function getPosition( evt, canvas ) {
 
-	actions.onmousedown = function( evt ) {
-		previous = {
-			x: evt.layerX,
-			y: evt.layerY
-		}
+		var rect = canvas.getBoundingClientRect();
+
+		var scaleX = canvas.width / rect.width;
+		var scaleY = canvas.height / rect.height;
+
+		return {
+			x: ( evt.clientX - rect.left ) * scaleX,
+			y: ( evt.clientY - rect.top ) * scaleY
+		};
 	}
 
-	actions.onmousemove = function( evt ) {
+	// Establish first point
+	function handleStart( evt ) {
 
-		if ( evt.buttons & 1 == 1 ) {
-			var current = {
-				x: evt.layerX,
-				y: evt.layerY
-			}
-
-			if ( previous.x !== current.x || previous.y !== current.y ) {
-				multiline( previous.x, previous.y, current.x, current.y, splits );
-			}
-
-			previous = current;
-		}
-		// console.info('move', evt);
+		previous = getPosition( evt, canvas );
 	}
 
+	// Handle path for drawing
+	function handleMove( target ) {
+
+		var current = getPosition( target, canvas );
+
+		if ( previous.x !== current.x || previous.y !== current.y ) {
+			multiline( previous.x, previous.y, current.x, current.y, splits );
+		}
+
+		previous = current;
+
+		console.debug( 'move', target );
+	}
+
+	// Symetrically draw lines following path
 	function multiline( x0, y0, x1, y1, n ) {
 
 		ctx.save()
 
-		ctx.strokeStyle = document.querySelector( 'select[name=color-select]' ).value || 'black';
-		ctx.fillStyle = document.querySelector( 'select[name=color-select]' ).value || 'black';
 
-		var diameter = parseInt( document.querySelector( 'input[name=stroke]' ).value || 1 );
+		ctx.strokeStyle = strokeColor;
+		ctx.fillStyle = fillColor;
+
+		var diameter = parseInt( $( 'input[name=stroke]' ).value || 1 );
 		ctx.lineWidth = diameter;
 
 		ctx.translate( cx, cy );
@@ -65,12 +123,16 @@
 		}
 
 		ctx.restore();
-
 	}
 
+	// Resets canvas to inital state
 	function reset() {
 
-		var size = document.querySelector( 'input[name=size]' ).value || 600;
+
+		var size = $( 'input[name=size]' ).value || 600;
+		splits = parseInt( $( 'input[name=symmetry]' ).value || 8 );
+
+		console.debug( 'Resetting canvas with w, s', size, splits );
 
 		var parentNode = canvas.parentNode;
 		parentNode.style.width = size;
@@ -83,7 +145,6 @@
 
 		cx = canvas.width / 2;
 		cy = canvas.height / 2;
-		splits = parseInt( document.querySelector( 'input[name=symmetry]' ).value || 8 );
 
 		ctx.clearRect( 0, 0, canvas.width, canvas.height );
 
@@ -118,19 +179,18 @@
 
 		rulersCtx.restore();
 
+		console.debug( 'Canvas reset' );
+
 	}
 
-	document.querySelector( 'button[name=reset]' ).onclick = function() {
-		reset();
-	}
+	function setColor( evt ) {
+		var color = evt.target.value;
+		strokeColor = color;
+		fillColor = color;
 
-	document.querySelector( 'button[name=download]' ).onclick = function() {
-		window.open( canvas.toDataURL(), '_blank' );
-	}
+		$( '[name=color-advanced]' ).value = color;
 
-	document.querySelector( 'input[name=rulers]' ).onchange = function() {
-
-		rulers.style.visibility = this.checked ? 'visible' : 'hidden';
+		console.debug( 'set colors to', strokeColor, fillColor );
 	}
 
 } )( window, document )
