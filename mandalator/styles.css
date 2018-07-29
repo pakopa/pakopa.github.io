@@ -78,6 +78,19 @@ div.canvas-container {
 
 canvas {
     cursor: crosshair;
+    position: relative;
+}
+
+canvas#background {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+canvas.grid {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #actions {
@@ -89,12 +102,6 @@ canvas {
     flex: 0 0 auto;
     background-color: rgba(0, 0, 0, 0);
     cursor: crosshair;
-}
-
-canvas.grid {
-    position: absolute;
-    top: 0;
-    left: 0;
 }
 
 /* Control styles */

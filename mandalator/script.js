@@ -42,11 +42,15 @@
 
 	$( '[name=color-advanced]' ).addEventListener( 'change', setColor, false );
 	$( '[name=color]' ).addEventListener( 'change', setColor, false );
+	$( '[name=background-color]' ).addEventListener( 'change', changeBackgroundColor, false );
 
-
-	// Prepare de drawing context
+	// Prepare the drawing context
 	var canvas = $( 'canvas#main' );
 	var ctx = canvas.getContext( '2d' );
+
+	var backgroundCanvas = $( 'canvas#background' );
+	var backgroundCtx = backgroundCanvas.getContext( '2d' );
+
 	var cx, cy, splits;
 	var previous = null;
 	var strokeColor = '#000';
@@ -117,7 +121,7 @@
 	// Symetrically draw lines following path
 	function multiline( x0, y0, x1, y1, n ) {
 
-		ctx.save()
+		ctx.save();
 
 		ctx.strokeStyle = strokeColor;
 		ctx.fillStyle = fillColor;
@@ -159,17 +163,18 @@
 
 		var bounds = parentNode.getBoundingClientRect();
 
-		canvas.width = grid.width = bounds.width;
-		canvas.height = grid.height = bounds.height;
+		canvas.width = backgroundCanvas.width = grid.width = bounds.width;
+		canvas.height = backgroundCanvas.height = grid.height = bounds.height;
 
 		cx = canvas.width / 2;
 		cy = canvas.height / 2;
 
 		// Background
 		ctx.clearRect( 0, 0, canvas.width, canvas.height );
+		backgroundCtx.clearRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
 
-		ctx.fillStyle = $( '[name=background-color]' ).value || $( '[name=color-advanced]' ).value
-		ctx.fillRect( 0, 0, canvas.width, canvas.height );
+		backgroundCtx.fillStyle = $( '[name=background-color]' ).value || $( '[name=color-advanced]' ).value
+		backgroundCtx.fillRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
 
 		// Grid
 		var gridCtx = grid.getContext( '2d' );
@@ -217,16 +222,23 @@
 		console.debug( 'set colors to', strokeColor, fillColor );
 	}
 
+	function changeBackgroundColor(evt) {
+		
+		backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+		backgroundCtx.fillStyle = $( '[name=background-color]' ).value || $( '[name=color-advanced]' ).value;
+		backgroundCtx.fillRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
+	}
+
 	function handleDownload( evt ) {
 
 		console.debug( 'download' );
 
 		canvas.toBlob( function ( blob ) {
-			
+
 			var url = URL.createObjectURL( blob );
 			var image = window.open( url, '_blank' );
 			console.debug( 'opened image in new window', url );
-		
+
 			image.addEventListener( 'beforeunload', function () {
 				URL.revokeObjectURL( url );
 				console.debug( 'Revoked url', url );
