@@ -8,6 +8,7 @@
 </head>
 
 <body>
+	<div class="page-background"></div>
 	<div class="tools-container">
 		<div class="control">
 			<label for="gridCheckbox" title="Show / hide grid lines">
@@ -62,9 +63,9 @@
 		</div>
 	</div>
 	<div class="canvas-container">
-		<canvas id="background"></canvas>
-		<canvas id="main">Sorry, but we are going to need an html canvas-compatible browser</canvas>
-		<canvas class="grid"></canvas>
+		<canvas id="background-layer"></canvas>
+		<canvas id="main-layer">Sorry, but we are going to need an html canvas-compatible browser</canvas>
+		<canvas class="grid-layer"></canvas>
 		<div id="actions"></div>
 	</div>
 	<script type="text/javascript" src="script.js"></script>

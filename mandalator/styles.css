@@ -10,14 +10,30 @@ html, body {
 }
 
 body {
+    position: relative;
     display: flex;
     flex-direction: column;
-    background-color: #ddd;
-    color: #444;
+    color: #444;    
 }
 
+.page-background {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    filter: blur(5px);
+    background-color: #ddd;
+    filter: blur(15px) brightness(1.02);
+    background-color: #ddd;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+}
 
 div.tools-container {
+    position: relative;
     flex: 0 0 auto;
     display: flex;
     margin: 0;
@@ -31,6 +47,15 @@ div.tools-container {
     border-radius: 0 2px;
 }
 
+div.tools-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 2px 2px rgba(255, 255, 255, 0.2);
+}
 
 .control {
     display: inline-block;
@@ -78,7 +103,17 @@ div.canvas-container {
     height: 600px;
     box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.2);
     margin: 16px;
-    background-color: white;
+    background-color: #FFF;
+}
+
+div.canvas-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 2px 2px rgba(255, 255, 255, 0.2);
 }
 
 canvas {
@@ -87,13 +122,13 @@ canvas {
     background-color: rgba(0, 0, 0, 0);
 }
 
-canvas#background {
+canvas#background-layer {
     position: absolute;
     top: 0;
     left: 0;
 }
 
-canvas.grid {
+canvas.grid-layer {
     position: absolute;
     top: 0;
     left: 0;
@@ -108,6 +143,7 @@ canvas.grid {
     flex: 0 0 auto;
     background-color: rgba(0, 0, 0, 0);
     cursor: crosshair;
+    box-sizing: content-box;
 }
 
 /* Control styles */

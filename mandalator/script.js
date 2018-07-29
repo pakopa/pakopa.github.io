@@ -29,12 +29,17 @@
 		}
 	}, false );
 
+	actions.addEventListener( 'mouseup', updateBackground, false );
+	actions.addEventListener( 'mouseout', updateBackground, false );
+	actions.addEventListener( 'touchend', updateBackground, false );
+
+
 	// Setup control events
 	$( '[data-action=reset]' ).addEventListener( 'click', reset, false );
 
 	$( '[data-action=download]' ).addEventListener( 'click', handleDownload, false );
 
-	var grid = $( 'canvas.grid' )
+	var grid = $( 'canvas.grid-layer' )
 	$( '[name=grid]' ).addEventListener( 'change', function () {
 		grid.style.visibility = this.checked ? 'visible' : 'hidden';
 		console.debug( 'change grid visibility to', grid.style.visibility );
@@ -43,12 +48,13 @@
 	$( '[name=color-advanced]' ).addEventListener( 'change', setColor, false );
 	$( '[name=color]' ).addEventListener( 'change', setColor, false );
 	$( '[name=background-color]' ).addEventListener( 'change', changeBackgroundColor, false );
+	$( '[name=background-color]' ).addEventListener( 'change', updateBackground, false );
 
 	// Prepare the drawing context
-	var canvas = $( 'canvas#main' );
+	var canvas = $( 'canvas#main-layer' );
 	var ctx = canvas.getContext( '2d' );
 
-	var backgroundCanvas = $( 'canvas#background' );
+	var backgroundCanvas = $( 'canvas#background-layer' );
 	var backgroundCtx = backgroundCanvas.getContext( '2d' );
 
 	var cx, cy, splits;
@@ -179,8 +185,8 @@
 		// Grid
 		var gridCtx = grid.getContext( '2d' );
 		gridCtx.save();
-		gridCtx.fillStyle = 'rgba(0, 0, 0, 0)';
-		gridCtx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+		var blackShadow = 'rgba(0, 0, 0, 0.5)';
+		var whiteShadow = 'rgba(255, 255, 255, 0.5)';
 		gridCtx.clearRect( 0, 0, canvas.width, canvas.height );
 
 		gridCtx.save();
@@ -192,6 +198,12 @@
 
 			gridCtx.moveTo( 0, -50 );
 			gridCtx.lineTo( 0, -Math.floor( 1.5 * canvas.height / 2 ) );
+			
+			// Draw both white and black grids
+			gridCtx.strokeStyle = blackShadow;
+			gridCtx.stroke();
+
+			gridCtx.strokeStyle = whiteShadow;
 			gridCtx.stroke();
 
 			//gridCtx.arc(x1 - cx, y1 - cy, diameter / 2, 0, 2 * Math.PI);
@@ -201,13 +213,21 @@
 		}
 
 		for ( var i = 1; i < Math.floor( canvas.width / 50 ); i++ ) {
+			
 			gridCtx.beginPath();
 			gridCtx.arc( 0, 0, i * 50, 0, 2 * Math.PI );
+			
+			// Draw both white and black grids
+			gridCtx.strokeStyle = blackShadow;
+			gridCtx.stroke();
+
+			gridCtx.strokeStyle = whiteShadow;
 			gridCtx.stroke();
 		}
 
 		gridCtx.restore();
 
+		updateBackground();
 		console.debug( 'Canvas reset' );
 
 	}
@@ -222,25 +242,32 @@
 		console.debug( 'set colors to', strokeColor, fillColor );
 	}
 
-	function changeBackgroundColor(evt) {
-		
-		backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+	function changeBackgroundColor( evt ) {
+
+		backgroundCtx.clearRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
 		backgroundCtx.fillStyle = $( '[name=background-color]' ).value || $( '[name=color-advanced]' ).value;
 		backgroundCtx.fillRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
+	}
+
+	function renderResult() {
+
+		var tmp = document.createElement( 'canvas' );
+		tmp.width = canvas.width;
+		tmp.height = canvas.height;
+
+		var tmpCtx = tmp.getContext( '2d' );
+		tmpCtx.clearRect( 0, 0, tmp.width, tmp.height );
+		tmpCtx.drawImage( backgroundCanvas, 0, 0 );
+		tmpCtx.drawImage( canvas, 0, 0 );
+
+		return tmp;
 	}
 
 	function handleDownload( evt ) {
 
 		console.debug( 'download' );
 
-		var tmp = document.createElement('canvas');
-		tmp.width = canvas.width;
-		tmp.height = canvas.height;
-
-		var tmpCtx =  tmp.getContext('2d');
-		tmpCtx.clearRect(0, 0, tmp.width, tmp.height);
-		tmpCtx.drawImage(backgroundCanvas, 0, 0);
-		tmpCtx.drawImage(canvas, 0, 0);
+		var tmp = renderResult();
 
 		tmp.toBlob( function ( blob ) {
 
@@ -252,7 +279,16 @@
 				URL.revokeObjectURL( url );
 				console.debug( 'Revoked url', url );
 			}, false )
-		} );				
+		} );
+	}
+
+	function updateBackground() {
+
+		console.debug('update background');
+
+		var tmp = renderResult();
+		var background = $('.page-background');
+		background.style.backgroundImage = 'url(' + tmp.toDataURL() + ')';		
 	}
 
 } )( window, document )
