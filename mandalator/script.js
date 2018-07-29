@@ -233,7 +233,16 @@
 
 		console.debug( 'download' );
 
-		canvas.toBlob( function ( blob ) {
+		var tmp = document.createElement('canvas');
+		tmp.width = canvas.width;
+		tmp.height = canvas.height;
+
+		var tmpCtx =  tmp.getContext('2d');
+		tmpCtx.clearRect(0, 0, tmp.width, tmp.height);
+		tmpCtx.drawImage(backgroundCanvas, 0, 0);
+		tmpCtx.drawImage(canvas, 0, 0);
+
+		tmp.toBlob( function ( blob ) {
 
 			var url = URL.createObjectURL( blob );
 			var image = window.open( url, '_blank' );
@@ -243,7 +252,7 @@
 				URL.revokeObjectURL( url );
 				console.debug( 'Revoked url', url );
 			}, false )
-		} )
+		} );				
 	}
 
 } )( window, document )

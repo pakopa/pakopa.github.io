@@ -10,7 +10,7 @@
 <body>
 	<div class="tools-container">
 		<div class="control">
-			<label for="gridCheckbox">
+			<label for="gridCheckbox" title="Show / hide grid lines">
 				<div class="checkbox-control">
 					<input id="gridCheckbox" type="checkbox" name="grid" checked="checked"></input>
 					<i class="checkbox"></i>
@@ -18,49 +18,52 @@
 				</div>
 			</label>
 		</div>
+		<div class="control-separator"></div>
 		<div class="control">
 			<label>
 				<span>Color</span>
-				<input type="text" name="color-advanced" size="20" title="Any css valid color would do"></input>
-				<input type="color" name="color"></input>
+				<input type="text" name="color-advanced" size="20" value="#000000" title="Any css valid color would do"></input>
+				<input type="color" name="color" title="Built-in color picker. Platform-dependant"></input>
 			</label>
 		</div>
 		<div class="control">
-			<label>
+			<label title="Stroke width">
 				<span>Stroke</span>
 				<input type="number" name="stroke" value="2" min="0"></input>
 			</label>
 		</div>
 		<div class="control">
-			<label>
-				<span>Size</span>
-				<input type="number" name="size" value="600"></input>
-			</label>
-		</div>
-		<div class="control">
-			<label>
-				<span>Symmetry</span>
-				<input type="number" name="symmetry" value="12" min="1"></input>
-			</label>
-		</div>
-		<div class="control">
-			<label>
+			<label title="Background color">
 				<span>Background</span>
 				<select name="background-color" value="#FFF">
 					<!-- The script must fulfill these -->
 				</select>
 			</label>
 		</div>
+		<div class="control-separator"></div>
+		<div class="control">
+			<label title="Drawing canvas size">
+				<span>Size</span>
+				<input type="number" name="size" value="600"></input>
+			</label>
+		</div>
+		<div class="control">
+			<label title="Point symmetry (number of slices)">
+				<span>Symmetry</span>
+				<input type="number" name="symmetry" value="12" min="1"></input>
+			</label>
+		</div>
 		<div class="control">
 			<button data-action="reset" title="Reset the drawing and apply size and symmetry properties">Reset</button>
 		</div>
+		<div class="control-separator"></div>
 		<div class="control">
-			<button data-action="download">Download</button>
+			<button data-action="download" title="Open rendered drawing for download">Download</button>
 		</div>
 	</div>
 	<div class="canvas-container">
 		<canvas id="background"></canvas>
-		<canvas id="main">Which kind of browser are you using that does not support canvas?</canvas>
+		<canvas id="main">Sorry, but we are going to need an html canvas-compatible browser</canvas>
 		<canvas class="grid"></canvas>
 		<div id="actions"></div>
 	</div>
