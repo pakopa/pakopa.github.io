@@ -56,7 +56,7 @@
 	var strokeColor = '#000';
 	var fillColor = '#000';
 	var backgroundColors = {
-		'': 'Current',
+		'': 'Current draw color',
 		'rgba(0, 0, 0, 0)': 'Transparent',
 		'#FFF': 'White',
 		'#EEE': 'Not so white',
