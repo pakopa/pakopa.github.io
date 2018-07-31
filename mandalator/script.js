@@ -62,6 +62,63 @@
 
 	downloadBtn.addEventListener( 'click', handleDownload, false );
 
+	// From https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
+	window.addEventListener( 'keydown', function ( evt ) {
+
+		console.info( evt );
+
+		// Should do nothing if the default action has been cancelled
+		if ( evt.defaultPrevented ) {
+			return;
+		}
+
+		var handled = false;
+		if ( evt.code == 'KeyZ' && evt.ctrlKey == true ) {
+
+			editHistory.undo();
+			handled = true;
+
+		} else if ( evt.code == 'KeyY' && evt.ctrlKey == true ) {
+
+			editHistory.redo();
+			handled = true;
+
+		} else if ( evt.code == 'KeyS' && evt.ctrlKey == true ) {
+
+			handleDownload( evt );
+			handled = true;
+
+		} else if ( evt.key == '+' ) {
+
+			// Just js things "1" + 1 = "11";
+			strokeCtrl.value = ( strokeCtrl.value - 0 ) + 1;
+			handled = true;
+
+		} else if ( evt.key == '-' ) {
+
+			strokeCtrl.value = strokeCtrl.value > 0 ? strokeCtrl.value - 1 : strokeCtrl.value;
+			handled = true;
+
+		} else if ( evt.key == ',' || evt.key == '<' ) {
+
+			symmetryCtrl.value = symmetryCtrl.value > 1 ? symmetryCtrl.value - 1 : symmetryCtrl.value;
+			updateSymmery();
+			handled = true;
+
+		} else if ( evt.key == '.' || evt.key == '>' ) {
+
+			// Just js things "1" + 1 = "11";
+			symmetryCtrl.value = symmetryCtrl.value <= 720 ? ( symmetryCtrl.value - 0 ) + 1 : symmetryCtrl.value;
+			updateSymmery();
+			handled = true;
+		}
+
+		// Suppress "double action" if event handled
+		if ( handled ) {
+			evt.preventDefault();
+		}
+	}, true );
+
 	// Prepare the drawing context
 	var ctx = canvas.getContext( '2d' );
 	var backgroundCtx = backgroundCanvas.getContext( '2d' );
@@ -363,11 +420,11 @@
 	}
 
 	// updates the drawing symmetry
-	function updateSymmery( evt ) {
+	function updateSymmery() {
 
-		console.debug( 'Update symmetry', evt );
+		console.debug( 'Update symmetry' );
 
-		splits = parseInt( evt.target.value || 8 );
+		splits = parseInt( symmetryCtrl.value || 8 );
 		redrawGrid( splits );
 	}
 
