@@ -128,7 +128,7 @@ canvas#background-layer {
     left: 0;
 }
 
-canvas.grid-layer {
+canvas#grid-layer {
     position: absolute;
     top: 0;
     left: 0;

@@ -41,17 +41,17 @@
 				</select>
 			</label>
 		</div>
+		<div class="control">
+			<label title="Point symmetry (number of slices)">
+				<span>Symmetry</span>
+				<input type="number" name="symmetry" value="8" min="1"></input>
+			</label>
+		</div>
 		<div class="control-separator"></div>
 		<div class="control">
 			<label title="Drawing canvas size">
 				<span>Size</span>
 				<input type="number" name="size" value="600"></input>
-			</label>
-		</div>
-		<div class="control">
-			<label title="Point symmetry (number of slices)">
-				<span>Symmetry</span>
-				<input type="number" name="symmetry" value="12" min="1"></input>
 			</label>
 		</div>
 		<div class="control">
@@ -65,7 +65,7 @@
 	<div class="canvas-container">
 		<canvas id="background-layer"></canvas>
 		<canvas id="main-layer">Sorry, but we are going to need an html canvas-compatible browser</canvas>
-		<canvas class="grid-layer"></canvas>
+		<canvas id="grid-layer"></canvas>
 		<div id="actions"></div>
 	</div>
 	<script type="text/javascript" src="script.js?_=201807291850"></script>
