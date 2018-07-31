@@ -9,6 +9,9 @@
 	// Controls;
 	var gridCrtl = $( '[name=grid]' );
 
+	var undoCtrl = $( '[data-action=undo]' );
+	var redoCtrl = $( '[data-action=redo]' );
+
 	var advancedColorCtrl = $( '[name=color-advanced]' );
 	var colorCtrl = $( '[name=color]' );
 	var strokeCtrl = $( 'input[name=stroke]' );
@@ -32,20 +35,28 @@
 	actions.addEventListener( 'mousedown', handleStart, false );
 	actions.addEventListener( 'touchmove', handleTouchMove, false );
 	actions.addEventListener( 'mousemove', handleMouseMove, false );
-	actions.addEventListener( 'mouseup', updateBackground, false );
-	actions.addEventListener( 'mouseout', updateBackground, false );
-	actions.addEventListener( 'touchend', updateBackground, false );
+	actions.addEventListener( 'mouseup', updateState, false );
+	actions.addEventListener( 'mouseout', handleMouseOut, false );
+	actions.addEventListener( 'touchend', updateState, false );
 
 	// Setup control events
 	gridCrtl.addEventListener( 'change', function () {
 		gridCanvas.style.visibility = this.checked ? 'visible' : 'hidden';
-		console.debug( 'change grid visibility to', gridCanvas.style.visibility );
+		console.debug( 'Change grid visibility to', gridCanvas.style.visibility );
+	}, false );
+
+	undoCtrl.addEventListener( 'click', function () {
+		editHistory.undo();
+	}, false );
+
+	redoCtrl.addEventListener( 'click', function () {
+		editHistory.redo();
 	}, false );
 
 	advancedColorCtrl.addEventListener( 'change', setColor, false );
 	colorCtrl.addEventListener( 'change', setColor, false );
 	backgroundSelectCtrl.addEventListener( 'change', changeBackgroundColor, false );
-	backgroundSelectCtrl.addEventListener( 'change', updateBackground, false );
+	backgroundSelectCtrl.addEventListener( 'change', updatePageBackground, false );
 	symmetryCtrl.addEventListener( 'change', updateSymmery, false );
 	resetBtn.addEventListener( 'click', reset, false );
 
@@ -68,24 +79,35 @@
 		'#000': 'Black'
 	};
 
-	// Calculate inital size
-	var minSize = Math.floor( Math.min( window.innerHeight - canvas.getBoundingClientRect().y, window.innerWidth ) - 16 );
-	sizeCtrl.value = minSize;
+	var editHistory = window.editHistory = new EditHistory( ctx );
 
-	// Initialize background select
-	Object.keys( backgroundColors ).forEach( function ( key ) {
-		var option = document.createElement( 'option' );
-		option.value = key;
-		option.textContent = backgroundColors[key];
-		backgroundSelectCtrl.appendChild( option );
-	} );
+	// Initialize canvases and controls
+	init();
 
-	// Default background color
-	backgroundSelectCtrl.value = '#FFF';
+	// scope functions
 
-	// Initialize the canvas
-	reset();
-	ctx.strokeStyle = strokeColor;
+	// initialization
+	function init() {
+
+		// Calculate inital size
+		var minSize = Math.floor( Math.min( window.innerHeight - canvas.getBoundingClientRect().y, window.innerWidth ) - 16 );
+		sizeCtrl.value = minSize;
+
+		// Initialize background select
+		Object.keys( backgroundColors ).forEach( function ( key ) {
+			var option = document.createElement( 'option' );
+			option.value = key;
+			option.textContent = backgroundColors[key];
+			backgroundSelectCtrl.appendChild( option );
+		} );
+
+		// Default background color
+		backgroundSelectCtrl.value = '#FFF';
+
+		// Initialize the canvas
+		reset();
+		ctx.strokeStyle = strokeColor;
+	}
 
 	// Helper function to get mouse position on canvas.
 	function getPosition( evt, canvas ) {
@@ -107,6 +129,7 @@
 		previous = getPosition( evt, canvas );
 	}
 
+	// Handle touch draw
 	function handleTouchMove( evt ) {
 
 		if ( evt.touches.length == 1 ) {
@@ -119,6 +142,7 @@
 		}
 	};
 
+	// Handle mouse draw
 	function handleMouseMove( evt ) {
 
 		// Check for mousedown status
@@ -139,7 +163,16 @@
 
 		previous = current;
 
-		console.debug( 'move', target );
+		console.debug( 'Move', target );
+	}
+
+	function handleMouseOut( evt ) {
+
+		// Check for mousedown status
+		if ( evt.buttons & 1 == 1 ) {
+			updateState( evt );
+		}
+
 	}
 
 	// Symetrically draw lines following path
@@ -194,18 +227,22 @@
 		cy = canvas.height / 2;
 
 		// Background
-		ctx.clearRect( 0, 0, canvas.width, canvas.height );
+		ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
 		backgroundCtx.clearRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
 
 		backgroundCtx.fillStyle = backgroundSelectCtrl.value || advancedColorCtrl.value;
-		backgroundCtx.fillRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
+		backgroundCtx.fillRect( 0, 0, backgroundCtx.canvas.width, backgroundCtx.canvas.height );
 
 		redrawGrid( splits );
-		updateBackground();
+		updatePageBackground();
+
+		// save state
+		editHistory.pushState();
 
 		console.debug( 'Canvas reset' );
 	}
 
+	// redraws the guiding guide for a symmetry value
 	function redrawGrid( splits ) {
 
 		// Grid
@@ -254,7 +291,9 @@
 		gridCtx.restore();
 	}
 
+	// sets scope colors
 	function setColor( evt ) {
+
 		var color = evt.target.value;
 		strokeColor = color;
 		fillColor = color;
@@ -264,6 +303,7 @@
 		console.debug( 'set colors to', strokeColor, fillColor );
 	}
 
+	// sets scope background color
 	function changeBackgroundColor( evt ) {
 
 		backgroundCtx.clearRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
@@ -271,6 +311,7 @@
 		backgroundCtx.fillRect( 0, 0, backgroundCanvas.width, backgroundCanvas.height );
 	}
 
+	// Creates an image of the current drawing
 	function renderResult() {
 
 		var tmp = document.createElement( 'canvas' );
@@ -278,16 +319,17 @@
 		tmp.height = canvas.height;
 
 		var tmpCtx = tmp.getContext( '2d' );
-		tmpCtx.clearRect( 0, 0, tmp.width, tmp.height );
+		tmpCtx.clearRect( 0, 0, tmpCtx.canvas.width, tmpCtx.canvas.height );
 		tmpCtx.drawImage( backgroundCanvas, 0, 0 );
 		tmpCtx.drawImage( canvas, 0, 0 );
 
 		return tmp;
 	}
 
+	// open a new tab with the rendered image
 	function handleDownload( evt ) {
 
-		console.debug( 'download' );
+		console.debug( 'Download' );
 
 		var tmp = renderResult();
 
@@ -295,7 +337,7 @@
 
 			var url = URL.createObjectURL( blob );
 			var image = window.open( url, '_blank' );
-			console.debug( 'opened image in new window', url );
+			console.debug( 'Opened image in new window', url );
 
 			image.addEventListener( 'beforeunload', function () {
 				URL.revokeObjectURL( url );
@@ -304,20 +346,75 @@
 		} );
 	}
 
-	function updateBackground() {
+	// Update edit history and page background
+	function updateState() {
 
-		console.debug( 'update background' );
+		editHistory.pushState();
+		updatePageBackground();
+	}
+
+	// updates the page background with the current image.
+	function updatePageBackground() {
+
+		console.debug( 'Update background' );
 
 		var tmp = renderResult();
 		pageBackground.style.backgroundImage = 'url(' + tmp.toDataURL() + ')';
 	}
 
+	// updates the drawing symmetry
 	function updateSymmery( evt ) {
 
-		console.debug( 'update symmetry', evt );
-		
+		console.debug( 'Update symmetry', evt );
+
 		splits = parseInt( evt.target.value || 8 );
 		redrawGrid( splits );
+	}
+
+	// Simple edit history management
+	function EditHistory( ctx, size ) {
+
+		size = size || 10;
+		this.states = [];
+		this.idx = -1;
+
+		this.pushState = function () {
+
+			console.debug( 'Saved state', this );
+
+			this.states.splice( ++this.idx, this.states.length, ctx.getImageData( 0, 0, ctx.canvas.width, ctx.canvas.height ) );
+
+			if ( this.states.length > size ) {
+				this.states.shift();
+				--this.idx;
+			}
+		}
+
+		this.undo = function () {
+
+			console.debug( 'Undo', this );
+
+			if ( this.idx > 0 ) {
+				ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+				ctx.putImageData( this.states[--this.idx], 0, 0 );
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		this.redo = function () {
+
+			console.debug( 'Redo', this );
+
+			if ( this.idx < this.states.length - 1 ) {
+				ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+				ctx.putImageData( this.states[++this.idx], 0, 0 );
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 
 } )( window, document )
