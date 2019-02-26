@@ -19,6 +19,7 @@
 
 	var sizeCtrl = $( 'input[name=size]' );
 	var symmetryCtrl = $( 'input[name=symmetry]' );
+	var lineSymmetryCtrl = $( 'input[name=lineSymmetry]' );
 	var resetBtn = $( '[data-action=reset]' );
 
 	var downloadBtn = $( '[data-action=download]' );
@@ -58,6 +59,7 @@
 	backgroundSelectCtrl.addEventListener( 'change', changeBackgroundColor, false );
 	backgroundSelectCtrl.addEventListener( 'change', updatePageBackground, false );
 	symmetryCtrl.addEventListener( 'change', updateSymmery, false );
+			
 	resetBtn.addEventListener( 'click', reset, false );
 
 	downloadBtn.addEventListener( 'click', handleDownload, false );
@@ -215,7 +217,7 @@
 		var current = getPosition( target, canvas );
 
 		if ( previous.x !== current.x || previous.y !== current.y ) {
-			multiline( previous.x, previous.y, current.x, current.y, splits );
+			multiline( previous.x, previous.y, current.x, current.y, splits, lineSymmetryCtrl.checked );
 		}
 
 		previous = current;
@@ -233,7 +235,7 @@
 	}
 
 	// Symetrically draw lines following path
-	function multiline( x0, y0, x1, y1, n ) {
+	function multiline( x0, y0, x1, y1, n, d ) {
 
 		ctx.save();
 
@@ -245,21 +247,41 @@
 
 		ctx.translate( cx, cy );
 
+		// We split the circle in n parts
 		for ( var i = 0; i < n; i++ ) {
 
-			ctx.beginPath();
-
-			ctx.moveTo( x0 - cx, y0 - cy );
-			ctx.lineTo( x1 - cx, y1 - cy );
-			ctx.stroke();
-
-			ctx.arc( x1 - cx, y1 - cy, diameter / 2, 0, 2 * Math.PI );
-			ctx.fill();
+			drawLine(x0, y0, x1, y1, diameter);
 
 			ctx.rotate( 2 * Math.PI / n );
 		}
+		
+		if (d) {
+			
+			// Context inversion
+			ctx.scale(-1, 1);
+			
+			// We split the circle in n parts again
+			for ( var i = 0; i < n; i++ ) {
+
+				drawLine(x0, y0, x1, y1, diameter);
+
+				ctx.rotate( 2 * Math.PI / n );
+			}
+		}
 
 		ctx.restore();
+	}
+	
+	function drawLine(x0, y0, x1, y1, diameter) {
+		
+		ctx.beginPath();
+
+		ctx.moveTo( x0 - cx, y0 - cy );
+		ctx.lineTo( x1 - cx, y1 - cy );
+		ctx.stroke();
+
+		ctx.arc( x1 - cx, y1 - cy, diameter / 2, 0, 2 * Math.PI );
+		ctx.fill();
 	}
 
 	// Resets canvas to inital state
