@@ -8,6 +8,7 @@
 
 	// Controls;
 	var gridCrtl = $( '[name=grid]' );
+	var lazyMouseCtrl = $( '[name=lazyMouse]' );
 
 	var undoCtrl = $( '[data-action=undo]' );
 	var redoCtrl = $( '[data-action=redo]' );
@@ -44,6 +45,11 @@
 	gridCrtl.addEventListener( 'change', function () {
 		gridCanvas.style.visibility = this.checked ? 'visible' : 'hidden';
 		console.debug( 'Change grid visibility to', gridCanvas.style.visibility );
+	}, false );
+	
+	lazyMouseCtrl.addEventListener( 'change', function () {
+		lazyMouse = parseInt( lazyMouseCtrl.value || 0 )
+		console.debug( 'Updated lazy mouse to', lazyMouse );
 	}, false );
 
 	undoCtrl.addEventListener( 'click', function () {
@@ -113,18 +119,25 @@
 			symmetryCtrl.value = symmetryCtrl.value <= 720 ? ( symmetryCtrl.value - 0 ) + 1 : symmetryCtrl.value;
 			updateSymmery();
 			handled = true;
+
+		} else if ( evt.key == 'm' ) {
+
+			lineSymmetryCtrl.checked = !lineSymmetryCtrl.checked;
+			handled = true;
 		}
 
 		// Suppress "double action" if event handled
 		if ( handled ) {
 			evt.preventDefault();
 		}
+		
 	}, true );
 
 	// Prepare the drawing context
 	var ctx = canvas.getContext( '2d' );
 	var backgroundCtx = backgroundCanvas.getContext( '2d' );
 
+	var lazyMouse = 10;
 	var cx, cy, splits;
 	var previous = null;
 	var strokeColor = '#000';
@@ -137,6 +150,7 @@
 		'#222': 'Not so black',
 		'#000': 'Black'
 	};
+	
 
 	var editHistory = window.editHistory = new EditHistory( ctx );
 
@@ -214,7 +228,9 @@
 	// Handle path for drawing
 	function handleMove( target ) {
 
-		var current = getPosition( target, canvas );
+		var pointer = getPosition( target, canvas );
+		
+		var current = calcDrawingPointer(previous.x, previous.y, pointer.x, pointer.y, lazyMouse);
 
 		if ( previous.x !== current.x || previous.y !== current.y ) {
 			multiline( previous.x, previous.y, current.x, current.y, splits, lineSymmetryCtrl.checked );
@@ -282,6 +298,19 @@
 
 		ctx.arc( x1 - cx, y1 - cy, diameter / 2, 0, 2 * Math.PI );
 		ctx.fill();
+	}
+	
+	function calcDrawingPointer(px, py, cx, cy, max) {
+		
+		var dx = Math.pow(cx - px, 2);
+		var dy = Math.pow(cy - py, 2)
+		var length = Math.sqrt(dx + dy);
+		var scale = Math.max(length - max, 0) / length;
+		
+		return {
+			x: (scale * (cx - px)) + px,
+			y: (scale * (cy - py)) + py,
+		}
 	}
 
 	// Resets canvas to inital state
