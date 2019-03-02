@@ -134,6 +134,12 @@ canvas#grid-layer {
     left: 0;
 }
 
+canvas#cursor-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 #actions {
     position: absolute;
     top: 0;

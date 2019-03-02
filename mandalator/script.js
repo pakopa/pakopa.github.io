@@ -31,10 +31,12 @@
 	var gridCanvas = $( 'canvas#grid-layer' );
 	var backgroundCanvas = $( 'canvas#background-layer' );
 	var canvas = $( 'canvas#main-layer' );
+	var cursorCanvas = $( 'canvas#cursor-layer' );
 
 	// Setup drawing events
-	actions.addEventListener( 'touchstart', handleStart, false );
-	actions.addEventListener( 'mousedown', handleStart, false );
+	actions.addEventListener( 'touchstart', handleTouchStart, false );
+	actions.addEventListener( 'mousedown', handleMouseStart, false );
+	actions.addEventListener( 'mousein', handleMouseStart, false );
 	actions.addEventListener( 'touchmove', handleTouchMove, false );
 	actions.addEventListener( 'mousemove', handleMouseMove, false );
 	actions.addEventListener( 'mouseup', updateState, false );
@@ -46,7 +48,7 @@
 		gridCanvas.style.visibility = this.checked ? 'visible' : 'hidden';
 		console.debug( 'Change grid visibility to', gridCanvas.style.visibility );
 	}, false );
-	
+
 	lazyMouseCtrl.addEventListener( 'change', function () {
 		lazyMouse = parseInt( lazyMouseCtrl.value || 0 )
 		console.debug( 'Updated lazy mouse to', lazyMouse );
@@ -65,7 +67,7 @@
 	backgroundSelectCtrl.addEventListener( 'change', changeBackgroundColor, false );
 	backgroundSelectCtrl.addEventListener( 'change', updatePageBackground, false );
 	symmetryCtrl.addEventListener( 'change', updateSymmery, false );
-			
+
 	resetBtn.addEventListener( 'click', reset, false );
 
 	downloadBtn.addEventListener( 'click', handleDownload, false );
@@ -130,12 +132,13 @@
 		if ( handled ) {
 			evt.preventDefault();
 		}
-		
+
 	}, true );
 
 	// Prepare the drawing context
 	var ctx = canvas.getContext( '2d' );
 	var backgroundCtx = backgroundCanvas.getContext( '2d' );
+	var cursorCtx = cursorCanvas.getContext( '2d' );
 
 	var lazyMouse = 10;
 	var cx, cy, splits;
@@ -150,7 +153,9 @@
 		'#222': 'Not so black',
 		'#000': 'Black'
 	};
-	
+
+	var blackShadowStroke = 'rgba(0, 0, 0, 0.5)';
+	var whiteShadowStroke = 'rgba(255, 255, 255, 0.5)';
 
 	var editHistory = window.editHistory = new EditHistory( ctx );
 
@@ -163,7 +168,7 @@
 	function init() {
 
 		// Calculate inital size
-		var minSize = Math.floor( Math.min( window.innerHeight - canvas.getBoundingClientRect().y, window.innerWidth ) - 16 );
+		var minSize = Math.floor( Math.min( window.innerHeight - canvas.getBoundingClientRect().y, window.innerWidth ) - 40 );
 		sizeCtrl.value = minSize;
 
 		// Initialize background select
@@ -197,48 +202,98 @@
 	}
 
 	// Establish first point
-	function handleStart( evt ) {
+	function handleTouchStart( evt ) {
 
-		previous = getPosition( evt, canvas );
+		if ( evt.touches.length == 1 ) {
+			evt.preventDefault();
+			previous = updateCursor( evt.touches[0] );
+		}
+
+	}
+
+	function handleMouseStart( evt ) {
+
+		evt.preventDefault();
+		previous = updateCursor( evt );
 	}
 
 	// Handle touch draw
 	function handleTouchMove( evt ) {
 
 		if ( evt.touches.length == 1 ) {
+
 			evt.preventDefault();
-			handleMove( evt.touches[0] );
-		}
-		else {
+
+			var current = updateCursor( evt.touches[0] );
+			drawUpdate( current );
+			previous = current;
+
+		} else {
 			console.debug( 'Ignored touch event', evt );
-			return true;
+			return true; // TODO: Check if this is necessary
 		}
 	};
 
 	// Handle mouse draw
 	function handleMouseMove( evt ) {
 
+		var current = updateCursor( evt );
+
 		// Check for mousedown status
 		if ( evt.buttons & 1 == 1 ) {
 			evt.preventDefault();
-			handleMove( evt );
+			drawUpdate( current );
 		}
+
+		previous = current;
 	};
 
-	// Handle path for drawing
-	function handleMove( target ) {
+	function handleMouseOut( evt ) {
 
-		var pointer = getPosition( target, canvas );
-		
-		var current = calcDrawingPointer(previous.x, previous.y, pointer.x, pointer.y, lazyMouse);
+		// Check for mousedown status
+		if ( evt.buttons & 1 == 1 ) {
+			updateState( evt );
+		}
+	}
+
+	// function update cursor
+	function updateCursor( target ) {
+
+		var cursor = getPosition( target, canvas );
+
+		var current = calcDrawingPointer( previous.x, previous.y, cursor.x, cursor.y, lazyMouse );
+
+		cursorCtx.clearRect( 0, 0, canvas.width, canvas.height );
+
+		// Draw both white and black cursors
+		drawCursor( cursor, current, blackShadowStroke, colorCtrl.value );
+		drawCursor( cursor, current, whiteShadowStroke, colorCtrl.value );
+
+		console.debug( 'Move', cursor, current, previous, target );
+
+		return current;
+	}
+
+	function drawCursor( cursor, current, stroke, fill ) {
+
+		cursorCtx.lineWidth = 1;
+		cursorCtx.fillStyle = fill;
+		cursorCtx.strokeStyle = stroke;
+
+		cursorCtx.beginPath()
+		cursorCtx.arc( current.x, current.y, Math.ceil( strokeCtrl.value / 2 ), 0, 2 * Math.PI );
+		cursorCtx.fill();
+		cursorCtx.moveTo( current.x, current.y );
+		cursorCtx.lineTo( cursor.x, cursor.y );
+		cursorCtx.stroke();
+	}
+
+	// Handle path for drawing
+	function drawUpdate( current ) {
 
 		if ( previous.x !== current.x || previous.y !== current.y ) {
 			multiline( previous.x, previous.y, current.x, current.y, splits, lineSymmetryCtrl.checked );
 		}
-
-		previous = current;
-
-		console.debug( 'Move', target );
 	}
 
 	function handleMouseOut( evt ) {
@@ -247,7 +302,6 @@
 		if ( evt.buttons & 1 == 1 ) {
 			updateState( evt );
 		}
-
 	}
 
 	// Symetrically draw lines following path
@@ -266,20 +320,20 @@
 		// We split the circle in n parts
 		for ( var i = 0; i < n; i++ ) {
 
-			drawLine(x0, y0, x1, y1, diameter);
+			drawLine( x0, y0, x1, y1, diameter );
 
 			ctx.rotate( 2 * Math.PI / n );
 		}
-		
-		if (d) {
-			
+
+		if ( d ) {
+
 			// Context inversion
-			ctx.scale(-1, 1);
-			
+			ctx.scale( -1, 1 );
+
 			// We split the circle in n parts again
 			for ( var i = 0; i < n; i++ ) {
 
-				drawLine(x0, y0, x1, y1, diameter);
+				drawLine( x0, y0, x1, y1, diameter );
 
 				ctx.rotate( 2 * Math.PI / n );
 			}
@@ -287,9 +341,9 @@
 
 		ctx.restore();
 	}
-	
-	function drawLine(x0, y0, x1, y1, diameter) {
-		
+
+	function drawLine( x0, y0, x1, y1, diameter ) {
+
 		ctx.beginPath();
 
 		ctx.moveTo( x0 - cx, y0 - cy );
@@ -299,17 +353,17 @@
 		ctx.arc( x1 - cx, y1 - cy, diameter / 2, 0, 2 * Math.PI );
 		ctx.fill();
 	}
-	
-	function calcDrawingPointer(px, py, cx, cy, max) {
-		
-		var dx = Math.pow(cx - px, 2);
-		var dy = Math.pow(cy - py, 2)
-		var length = Math.sqrt(dx + dy);
-		var scale = Math.max(length - max, 0) / length;
-		
+
+	function calcDrawingPointer( px, py, cx, cy, max ) {
+
+		var dx = Math.pow( cx - px, 2 );
+		var dy = Math.pow( cy - py, 2 )
+		var length = Math.sqrt( dx + dy );
+		var scale = Math.max( length - max, 0 ) / length;
+
 		return {
-			x: (scale * (cx - px)) + px,
-			y: (scale * (cy - py)) + py,
+			x: ( scale * ( cx - px ) ) + px,
+			y: ( scale * ( cy - py ) ) + py,
 		}
 	}
 
@@ -328,11 +382,17 @@
 
 		var bounds = parentNode.getBoundingClientRect();
 
-		canvas.width = backgroundCanvas.width = gridCanvas.width = bounds.width;
-		canvas.height = backgroundCanvas.height = gridCanvas.height = bounds.height;
+		canvas.width = backgroundCanvas.width = gridCanvas.width = cursorCanvas.width = bounds.width;
+		canvas.height = backgroundCanvas.height = gridCanvas.height = cursorCanvas.height = bounds.height;
 
 		cx = canvas.width / 2;
 		cy = canvas.height / 2;
+
+		// Set previous to center
+		previous = {
+			x: cx,
+			y: cy
+		};
 
 		// Background
 		ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
@@ -355,8 +415,6 @@
 
 		// Grid
 		var gridCtx = gridCanvas.getContext( '2d' );
-		var blackShadow = 'rgba(0, 0, 0, 0.5)';
-		var whiteShadow = 'rgba(255, 255, 255, 0.5)';
 
 		gridCtx.clearRect( 0, 0, canvas.width, canvas.height );
 
@@ -371,10 +429,10 @@
 			gridCtx.lineTo( 0, -Math.floor( 1.5 * canvas.height / 2 ) );
 
 			// Draw both white and black grids
-			gridCtx.strokeStyle = blackShadow;
+			gridCtx.strokeStyle = blackShadowStroke;
 			gridCtx.stroke();
 
-			gridCtx.strokeStyle = whiteShadow;
+			gridCtx.strokeStyle = whiteShadowStroke;
 			gridCtx.stroke();
 
 			// Rotate the context before drawing next line
@@ -388,10 +446,10 @@
 			gridCtx.arc( 0, 0, i * 50, 0, 2 * Math.PI );
 
 			// Draw both white and black grids
-			gridCtx.strokeStyle = blackShadow;
+			gridCtx.strokeStyle = blackShadowStroke;
 			gridCtx.stroke();
 
-			gridCtx.strokeStyle = whiteShadow;
+			gridCtx.strokeStyle = whiteShadowStroke;
 			gridCtx.stroke();
 		}
 
