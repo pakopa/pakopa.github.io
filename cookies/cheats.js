@@ -2,7 +2,7 @@
 
 function clickityFn( interval ) {
 	if ( !window.clickity ) {
-		window.clickity = setInterval( Game.clickCookie, interval ? interval : 125 );
+		window.clickity = setInterval( Game.ClickCookie, interval ? interval : 125 );
 	} else {
 		clearInterval( window.clickity );
 		window.clickity = null;
