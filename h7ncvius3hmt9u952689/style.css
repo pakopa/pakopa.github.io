@@ -65,12 +65,13 @@ section.message {
 }
 
 div.hint {
-    font-size: 24px;
+    font-size: 36px;
     min-width: 60%;
     min-height: 2rem;
     margin: 1em auto;
     padding: 8px;
     opacity: 0;
     user-select: none;
+    text-align: center;
 }
 
