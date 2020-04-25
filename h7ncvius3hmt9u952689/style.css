@@ -1,0 +1,42 @@
+html {
+    height: 100%;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+    background-color: #F0F0F0;
+    color: #333;
+    padding: 8px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+header {
+    margin: 2em auto 2em;
+    font-family: 'Major Mono Display', monospace;
+}
+
+header > h1 {
+    font-size: 16pt;
+    text-align: center;
+    display: inline-block;
+    width: 100%;
+}
+
+section {
+    margin: 2em auto 2em;
+}
+
+section.challenge {
+    font-family: 'Inconsolata', monospace;
+}
+
+section.message {
+    font-family: 'Montserrat', sans-serif;
+    visibility: hidden;
+}
