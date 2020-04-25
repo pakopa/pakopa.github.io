@@ -1,0 +1,2 @@
+User-agent: *
+Disallow: /h7ncvius3hmt9u9526897/
